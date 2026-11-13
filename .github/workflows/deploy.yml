@@ -1,0 +1,76 @@
+name: deploy
+
+# Every push to main is deployed to GitHub Pages and recorded as a GitHub deployment in the
+# environment named `production` for that exact commit, with the site's address as its URL.
+# Orvay reads that record (readProductionDeploy(sha, 'production')) to know the commit is live.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and none cancelled: every merged commit must reach production, or the
+# release that carries a fix is never observed.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+          RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: production
+          SENTRY_DSN: ${{ vars.SENTRY_DSN }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: production
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - id: pages
+        uses: actions/deploy-pages@v4
+
+  # Tells Sentry which commits the release carries and that it reached production. Dormant until
+  # a person adds the repository secret SENTRY_AUTH_TOKEN; nothing else needs to change.
+  sentry-release:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.SENTRY_AUTH_TOKEN != ''
+        with:
+          fetch-depth: 0
+      - uses: getsentry/action-release@v3
+        if: env.SENTRY_AUTH_TOKEN != ''
+        env:
+          SENTRY_ORG: zenovay
+          SENTRY_PROJECT: ${{ github.event.repository.name }}
+        with:
+          environment: production
+          release: ${{ github.sha }}
+          set_commits: auto
+          ignore_missing: true
+      - if: env.SENTRY_AUTH_TOKEN == ''
+        run: echo "SENTRY_AUTH_TOKEN is not set, so no Sentry release, commits or deploy were recorded."

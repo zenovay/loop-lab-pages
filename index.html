@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northlight: calm status pages</title>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="%BASE_URL%">Northlight</a>
+      <nav>
+        <a href="%BASE_URL%pricing/">Pricing</a>
+        <a href="%BASE_URL%about/">About</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Status pages for small teams</p>
+        <h1>Tell customers what is happening, before they ask.</h1>
+        <p class="lede">Northlight turns your monitors into one calm page. Incidents are written in plain words, and every update is timestamped.</p>
+        <a class="button" href="%BASE_URL%pricing/">See pricing</a>
+      </section>
+      <section class="features">
+        <article><h2>One page</h2><p>Every service, one address, readable on a phone.</p></article>
+        <article><h2>Plain words</h2><p>Templates that say what broke and when it will be back.</p></article>
+        <article><h2>Quiet by default</h2><p>Subscribers hear about incidents, never about marketing.</p></article>
+      </section>
+    </main>
+    <footer id="footer"></footer>
+    <script type="application/json" id="footer-config">{"page":"home","headline":"Field notes from the team","cta":"Get the notes","campaign":{"id":"autumn-launch","source":"footer"}}</script>
+    <script type="module" src="/src/pages/index.ts"></script>
+  </body>
+</html>
