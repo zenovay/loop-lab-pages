@@ -11,7 +11,7 @@ export type FooterConfig = {
   readonly headline: string
   readonly cta: string
   /** The marketing campaign this page's sign-ups are counted under. */
-  readonly campaign: Campaign
+  readonly campaign?: Campaign
 }
 
 export const readFooterConfig = (doc: Document): FooterConfig => {
@@ -24,7 +24,7 @@ export const buttonLabel = (config: Pick<FooterConfig, 'cta'>): string => config
 
 /** The analytics key an impression is counted under: `<page>:<campaign>:<source>`. */
 export const impressionKey = (config: FooterConfig): string =>
-  `${config.page}:${config.campaign.id}:${config.campaign.source}`
+  `${config.page}:${config.campaign?.id ?? 'none'}:${config.campaign?.source ?? 'none'}`
 
 const impressions: string[] = []
 

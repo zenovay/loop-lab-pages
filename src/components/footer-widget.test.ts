@@ -9,4 +9,7 @@ describe('footer widget', () => {
       impressionKey({ page: 'home', headline: 'h', cta: 'c', campaign: { id: 'autumn', source: 'footer' } }),
     ).toBe('home:autumn:footer')
   })
+  it('keys an impression for a page without a campaign', () => {
+    expect(impressionKey({ page: 'pricing', headline: 'h', cta: 'c' })).toBe('pricing:none:none')
+  })
 })
